@@ -5,10 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Clean old XMLs and build Manifest
+      - name: Build Manifest
         run: |
           rm -rf app/src/main/res
-          printf '<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:android="http://android.com">\n<uses-feature android:name="android.software.leanback" android:required="false"/>\n<uses-feature android:name="android.hardware.touchscreen" android:required="false"/>\n<application android:allowBackup="true" android:label="Wanbo Minimal" android:icon="@android:drawable/sym_def_app_icon" android:theme="@style/Theme.AppCompat.NoActionBar">\n<activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask" android:stateNotNeeded="true" android:screenOrientation="landscape">\n<intent-filter>\n<action android:name="android.intent.action.MAIN"/>\n<category android:name="android.intent.category.LAUNCHER"/>\n<category android:name="android.intent.category.HOME"/>\n<category android:name="android.intent.category.DEFAULT"/>\n<category android:name="android.intent.category.LEANBACK_LAUNCHER"/>\n</intent-filter>\n</activity>\n</application>\n</manifest>\n' > app/src/main/AndroidManifest.xml
+          printf '<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:X="http://schemas.android.com/apk/res/android">\n<uses-feature X:name="android.software.leanback" X:required="false"/>\n<uses-feature X:name="android.hardware.touchscreen" X:required="false"/>\n<application X:allowBackup="true" X:label="Wanbo Minimal" X:icon="@X:drawable/sym_def_app_icon" X:theme="@style/Theme.AppCompat.NoActionBar">\n<activity X:name=".MainActivity" X:exported="true" X:launchMode="singleTask" X:stateNotNeeded="true" X:screenOrientation="landscape">\n<intent-filter>\n<action X:name="android.intent.action.MAIN"/>\n<category X:name="android.intent.category.LAUNCHER"/>\n<category X:name="android.intent.category.HOME"/>\n<category X:name="android.intent.category.DEFAULT"/>\n<category X:name="android.intent.category.LEANBACK_LAUNCHER"/>\n</intent-filter>\n</activity>\n</application>\n</manifest>\n' | sed 's/X/android/g' > app/src/main/AndroidManifest.xml
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
