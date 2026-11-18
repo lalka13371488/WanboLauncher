@@ -9,38 +9,38 @@ jobs:
         run: |
           python3 -c '
           import re
-          p = "andr" + "oid:"
+          pref = "andr" + "oid:"
 
-          manifest = f"""<?xml version="1.0" encoding="utf-8"?>
+          manifest = """<?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://android.com">
-              <uses-feature {p}name="android.software.leanback" {p}required="false" />
-              <uses-feature {p}name="android.hardware.touchscreen" {p}required="false" />
+              <uses-feature A_name="android.software.leanback" A_required="false" />
+              <uses-feature A_name="android.hardware.touchscreen" A_required="false" />
               <application
-                  {p}allowBackup="true"
-                  {p}label="Wanbo Minimal"
-                  {p}icon="@android:drawable/sym_def_app_icon"
-                  {p}theme="@style/Theme.AppCompat.NoActionBar">
+                  A_allowBackup="true"
+                  A_label="Wanbo Minimal"
+                  A_icon="@android:drawable/sym_def_app_icon"
+                  A_theme="@style/Theme.AppCompat.NoActionBar">
                   <activity
-                      {p}name=".MainActivity"
-                      {p}exported="true"
-                      {p}launchMode="singleTask"
-                      {p}stateNotNeeded="true"
-                      {p}screenOrientation="landscape">
+                      A_name=".MainActivity"
+                      A_exported="true"
+                      A_launchMode="singleTask"
+                      A_stateNotNeeded="true"
+                      A_screenOrientation="landscape">
                       <intent-filter>
-                          <action {p}name="android.intent.action.MAIN" />
-                          <category {p}name="android.intent.category.LAUNCHER" />
-                          <category {p}name="android.intent.category.HOME" />
-                          <category {p}name="android.intent.category.DEFAULT" />
-                          <category {p}name="android.intent.category.LEANBACK_LAUNCHER" />
+                          <action A_name="android.intent.action.MAIN" />
+                          <category A_name="android.intent.category.LAUNCHER" />
+                          <category A_name="android.intent.category.HOME" />
+                          <category A_name="android.intent.category.DEFAULT" />
+                          <category A_name="android.intent.category.LEANBACK_LAUNCHER" />
                       </intent-filter>
                   </activity>
               </application>
-          </manifest>"""
+          </manifest>""".replace("A_", pref)
           open("app/src/main/AndroidManifest.xml", "w").write(manifest)
 
           for path in ["app/src/main/res/drawable/card_selector.xml", "app/src/main/res/layout/activity_main.xml"]:
               txt = open(path).read()
-              txt = re.sub(r"(?<!oid:)(?<!xmlns:)\b(id|layout_width|layout_height|layout_weight|layout_margin|layout_marginTop|layout_marginBottom|background|orientation|padding|gravity|format24Hour|format12Hour|textColor|textSize|fontFamily|columnCount|rowCount|focusable|text|textAllCaps|clipToPadding|state_focused|shape|color|width|radius)=", p + r"\1=", txt)
+              txt = re.sub(r"(?<!oid:)(?<!xmlns:)\b(id|layout_width|layout_height|layout_weight|layout_margin|layout_marginTop|layout_marginBottom|background|orientation|padding|gravity|format24Hour|format12Hour|textColor|textSize|fontFamily|columnCount|rowCount|focusable|text|textAllCaps|clipToPadding|state_focused|shape|color|width|radius)=", pref + r"\1=", txt)
               open(path, "w").write(txt)
           '
       - uses: actions/setup-java@v4
