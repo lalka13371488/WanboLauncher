@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build Manifest
         run: |
-          rm -rf app/src/main/res
+          rm -rf app/src/main/res/layout
           printf '<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:X="http://schemas.android.com/apk/res/android">\n<uses-permission X:name="android.permission.INTERNET"/>\n<uses-feature X:name="android.software.leanback" X:required="false"/>\n<uses-feature X:name="android.hardware.touchscreen" X:required="false"/>\n<application X:allowBackup="true" X:usesCleartextTraffic="true" X:label="Wanbo Minimal" X:icon="@X:drawable/sym_def_app_icon" X:theme="@style/Theme.AppCompat.NoActionBar">\n<activity X:name=".MainActivity" X:exported="true" X:launchMode="singleTask" X:stateNotNeeded="true" X:screenOrientation="landscape">\n<intent-filter>\n<action X:name="android.intent.action.MAIN"/>\n<category X:name="android.intent.category.LAUNCHER"/>\n<category X:name="android.intent.category.HOME"/>\n<category X:name="android.intent.category.DEFAULT"/>\n<category X:name="android.intent.category.LEANBACK_LAUNCHER"/>\n</intent-filter>\n</activity>\n</application>\n</manifest>\n' | sed 's/X/android/g' > app/src/main/AndroidManifest.xml
       - uses: actions/setup-java@v4
         with:
@@ -16,18 +16,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.2'
-      - name: Download Nature Wallpapers
+      - name: Optimize Wallpapers for Projector RAM
         run: |
-          mkdir -p app/src/main/res/drawable
-          U="https://loremflickr.com/1280/720/space,nebula,galaxy"
-          curl -sL "$U?lock=11" -o app/src/main/res/drawable/wall1.jpg
-          curl -sL "$U?lock=22" -o app/src/main/res/drawable/wall2.jpg
-          curl -sL "$U?lock=33" -o app/src/main/res/drawable/wall3.jpg
-          curl -sL "$U?lock=44" -o app/src/main/res/drawable/wall4.jpg
-          curl -sL "$U?lock=55" -o app/src/main/res/drawable/wall5.jpg
-          curl -sL "$U?lock=66" -o app/src/main/res/drawable/wall6.jpg
-          curl -sL "$U?lock=77" -o app/src/main/res/drawable/wall7.jpg
-          curl -sL "$U?lock=88" -o app/src/main/res/drawable/wall8.jpg
+          rm -f app/src/main/res/drawable/keep.txt
+          sudo apt-get update && sudo apt-get install -y imagemagick
+          for i in 1 2 3 4 5 6 7 8; do
+            src=$(ls app/src/main/res/drawable/wall${i}.* | head -n 1)
+            convert "$src" -resize 1280x720^ -gravity center -extent 1280x720 -quality 85 "app/src/main/res/drawable/wall${i}_opt.jpg"
+            rm -f "$src"
+            mv "app/src/main/res/drawable/wall${i}_opt.jpg" "app/src/main/res/drawable/wall${i}.jpg"
+          done
+
 
 
       - name: Build Debug APK
