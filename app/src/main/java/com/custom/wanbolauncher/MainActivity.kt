@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadNextWallpaper() {
         wallSeed += 7
         val host = "picsum.photos"
-        val fullUrl = "https://$host/seed/nature$wallSeed/1280/720"
+        val fullUrl = "http://$host/seed/nature$wallSeed/1280/720"
         thread {
             try {
                 val conn = URL(fullUrl).openConnection() as HttpURLConnection
