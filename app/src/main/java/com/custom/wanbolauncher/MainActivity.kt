@@ -180,13 +180,18 @@ class MainActivity : AppCompatActivity() {
     }
 
         private fun loadNextWallpaper() {
-        val wallIds = listOf(
+              val wallIds = listOf(
             R.drawable.wall1,
             R.drawable.wall2,
             R.drawable.wall3,
             R.drawable.wall4,
-            R.drawable.wall5
+            R.drawable.wall5,
+            R.drawable.wall6,
+            R.drawable.wall7,
+            R.drawable.wall8
         )
+
+        
         val nextRes = wallIds[wallSeed % wallIds.size]
         wallSeed++
         bgImageView.alpha = 0.35f
