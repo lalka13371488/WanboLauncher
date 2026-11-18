@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://android.com"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0B0F17"
+    android:orientation="vertical"
+    android:padding="48dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Левая часть: Часы и дата -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextClock
+                android:id="@+id/clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format24Hour="HH:mm"
+                android:format12Hour="HH:mm"
+                android:textColor="#F8FAFC"
+                android:textSize="84sp"
+                android:fontFamily="sans-serif-light" />
+
+            <TextClock
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format24Hour="EEEE, d MMMM"
+                android:format12Hour="EEEE, d MMMM"
+                android:textColor="#94A3B8"
+                android:textSize="22sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Правая часть: Кнопки быстрого доступа -->
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="2">
+
+            <Button
+                android:id="@+id/btnWifi"
+                android:layout_width="170dp"
+                android:layout_height="76dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_selector"
+                android:focusable="true"
+                android:text="Wi-Fi"
+                android:textAllCaps="false"
+                android:textColor="#F8FAFC"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btnBluetooth"
+                android:layout_width="170dp"
+                android:layout_height="76dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_selector"
+                android:focusable="true"
+                android:text="Bluetooth"
+                android:textAllCaps="false"
+                android:textColor="#F8FAFC"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btnProjection"
+                android:layout_width="170dp"
+                android:layout_height="76dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_selector"
+                android:focusable="true"
+                android:text="Проекция"
+                android:textAllCaps="false"
+                android:textColor="#F8FAFC"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btnSettings"
+                android:layout_width="170dp"
+                android:layout_height="76dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_selector"
+                android:focusable="true"
+                android:text="Настройки"
+                android:textAllCaps="false"
+                android:textColor="#F8FAFC"
+                android:textSize="18sp" />
+        </GridLayout>
+    </LinearLayout>
+
+    <!-- Нижняя часть: Лента приложений -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Приложения"
+        android:textColor="#64748B"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/appsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>
