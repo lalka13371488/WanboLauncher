@@ -2,18 +2,24 @@ package com.custom.wanbolauncher
 
 import android.content.Intent
 import android.content.pm.ResolveInfo
+import android.content.res.ColorStateList
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.provider.Settings
+import android.util.StateSet
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextClock
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -23,41 +29,114 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        setupQuickButtons()
-        setupAppsList()
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(0xFF0B0F17.toInt())
+            setPadding(64, 56, 64, 48)
+        }
+
+        val topSection = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f
+            )
+        }
+
+        val clockBox = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+            )
+        }
+
+        val clock = TextClock(this).apply {
+            format24Hour = "HH:mm"
+            format12Hour = "HH:mm"
+            setTextColor(0xFFF8FAFC.toInt())
+            textSize = 84f
+            typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
+        }
+
+        val date = TextClock(this).apply {
+            format24Hour = "EEEE, d MMMM"
+            format12Hour = "EEEE, d MMMM"
+            setTextColor(0xFF94A3B8.toInt())
+            textSize = 22f
+            setPadding(4, 8, 0, 0)
+        }
+
+        clockBox.addView(clock)
+        clockBox.addView(date)
+
+        val grid = GridLayout(this).apply {
+            columnCount = 2
+            rowCount = 2
+        }
+
+        grid.addView(createQuickButton("Wi-Fi") { openSystemScreen(Settings.ACTION_WIFI_SETTINGS) })
+        grid.addView(createQuickButton("Bluetooth") { openSystemScreen(Settings.ACTION_BLUETOOTH_SETTINGS) })
+        grid.addView(createQuickButton("Проекция") { openProjectionSettings() })
+        grid.addView(createQuickButton("Настройки") { openSystemScreen(Settings.ACTION_SETTINGS) })
+
+        topSection.addView(clockBox)
+        topSection.addView(grid)
+
+        val appsLabel = TextView(this).apply {
+            text = "Приложения"
+            setTextColor(0xFF64748B.toInt())
+            textSize = 16f
+            setPadding(0, 0, 0, 16)
+        }
+
+        val recyclerView = RecyclerView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 210
+            )
+            clipToPadding = false
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        root.addView(topSection)
+        root.addView(appsLabel)
+        root.addView(recyclerView)
+        setContentView(root)
+
+        setupAppsList(recyclerView)
     }
 
-    private fun setupQuickButtons() {
-        findViewById<Button>(R.id.btnWifi).setOnClickListener {
-            openSystemScreen(Settings.ACTION_WIFI_SETTINGS)
-        }
-        findViewById<Button>(R.id.btnBluetooth).setOnClickListener {
-            openSystemScreen(Settings.ACTION_BLUETOOTH_SETTINGS)
-        }
-        findViewById<Button>(R.id.btnSettings).setOnClickListener {
-            openSystemScreen(Settings.ACTION_SETTINGS)
-        }
-        findViewById<Button>(R.id.btnProjection).setOnClickListener {
-            val wanboIntents = listOf(
-                "com.zeasn.projector.setting",
-                "com.dangbei.projector.setting",
-                "com.android.tv.settings"
-            )
-            var opened = false
-            for (pkg in wanboIntents) {
-                val launchIntent = packageManager.getLaunchIntentForPackage(pkg)
-                if (launchIntent != null) {
-                    startActivity(launchIntent)
-                    opened = true
-                    break
-                }
+    private fun createQuickButton(label: String, action: () -> Unit): Button {
+        return Button(this).apply {
+            text = label
+            isAllCaps = false
+            textSize = 18f
+            setTextColor(0xFFF8FAFC.toInt())
+            isFocusable = true
+            background = createCardDrawable()
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 230
+                height = 100
+                setMargins(12, 12, 12, 12)
             }
-            if (!opened) {
-                openSystemScreen(Settings.ACTION_DISPLAY_SETTINGS)
+            setOnClickListener { action() }
+        }
+    }
+
+    private fun openProjectionSettings() {
+        val wanboIntents = listOf(
+            "com.zeasn.projector.setting",
+            "com.dangbei.projector.setting",
+            "com.android.tv.settings"
+        )
+        for (pkg in wanboIntents) {
+            val launchIntent = packageManager.getLaunchIntentForPackage(pkg)
+            if (launchIntent != null) {
+                startActivity(launchIntent)
+                return
             }
         }
+        openSystemScreen(Settings.ACTION_DISPLAY_SETTINGS)
     }
 
     private fun openSystemScreen(action: String) {
@@ -68,10 +147,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupAppsList() {
-        val recyclerView = findViewById<RecyclerView>(R.id.appsRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-
+    private fun setupAppsList(recyclerView: RecyclerView) {
         val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
             addCategory(Intent.CATEGORY_LAUNCHER)
         }
@@ -94,7 +170,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        // Блокируем выход из лаунчера по кнопке Назад
+    }
+}
+
+fun createCardDrawable(): StateListDrawable {
+    val focused = GradientDrawable().apply {
+        setColor(0xFF1E293B.toInt())
+        setStroke(4, 0xFF38BDF8.toInt())
+        cornerRadius = 20f
+    }
+    val normal = GradientDrawable().apply {
+        setColor(0xFF131A26.toInt())
+        setStroke(2, 0xFF1E293B.toInt())
+        cornerRadius = 20f
+    }
+    return StateListDrawable().apply {
+        addState(intArrayOf(android.R.attr.state_focused), focused)
+        addState(StateSet.WILD_CARD, normal)
     }
 }
 
@@ -113,25 +205,25 @@ class AppsAdapter(
             gravity = Gravity.CENTER
             isFocusable = true
             isClickable = true
-            background = ContextCompat.getDrawable(context, R.drawable.card_selector)
-            layoutParams = RecyclerView.LayoutParams(220, 155).apply {
-                setMargins(0, 0, 20, 0)
+            background = createCardDrawable()
+            layoutParams = RecyclerView.LayoutParams(240, 190).apply {
+                setMargins(0, 0, 24, 0)
             }
             setPadding(16, 16, 16, 16)
         }
 
         val iconView = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(72, 72)
+            layoutParams = LinearLayout.LayoutParams(84, 84)
         }
 
         val titleView = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 12 }
+            ).apply { topMargin = 14 }
             gravity = Gravity.CENTER
             maxLines = 1
-            textSize = 15f
+            textSize = 16f
             setTextColor(0xFFF8FAFC.toInt())
         }
 
