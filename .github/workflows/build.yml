@@ -19,12 +19,16 @@ jobs:
       - name: Download Nature Wallpapers
         run: |
           mkdir -p app/src/main/res/drawable
-          U="https://picsum.photos/seed"
-          curl -sL "$U/forest1/1280/720.jpg" -o app/src/main/res/drawable/wall1.jpg
-          curl -sL "$U/mountain2/1280/720.jpg" -o app/src/main/res/drawable/wall2.jpg
-          curl -sL "$U/lake3/1280/720.jpg" -o app/src/main/res/drawable/wall3.jpg
-          curl -sL "$U/sunset4/1280/720.jpg" -o app/src/main/res/drawable/wall4.jpg
-          curl -sL "$U/river5/1280/720.jpg" -o app/src/main/res/drawable/wall5.jpg
+          U="https://loremflickr.com/1280/720/space,nebula,galaxy"
+          curl -sL "$U?lock=11" -o app/src/main/res/drawable/wall1.jpg
+          curl -sL "$U?lock=22" -o app/src/main/res/drawable/wall2.jpg
+          curl -sL "$U?lock=33" -o app/src/main/res/drawable/wall3.jpg
+          curl -sL "$U?lock=44" -o app/src/main/res/drawable/wall4.jpg
+          curl -sL "$U?lock=55" -o app/src/main/res/drawable/wall5.jpg
+          curl -sL "$U?lock=66" -o app/src/main/res/drawable/wall6.jpg
+          curl -sL "$U?lock=77" -o app/src/main/res/drawable/wall7.jpg
+          curl -sL "$U?lock=88" -o app/src/main/res/drawable/wall8.jpg
+
 
       - name: Build Debug APK
         run: gradle assembleDebug
