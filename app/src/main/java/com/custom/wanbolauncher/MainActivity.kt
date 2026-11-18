@@ -179,28 +179,21 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacks(wallpaperRunnable)
     }
 
-    private fun loadNextWallpaper() {
-        wallSeed += 7
-        val host = "picsum.photos"
-        val fullUrl = "http://$host/seed/nature$wallSeed/1280/720"
-        thread {
-            try {
-                val conn = URL(fullUrl).openConnection() as HttpURLConnection
-                conn.instanceFollowRedirects = true
-                conn.connectTimeout = 8000
-                conn.readTimeout = 8000
-                val bmp: Bitmap? = BitmapFactory.decodeStream(conn.inputStream)
-                if (bmp != null) {
-                    runOnUiThread {
-                        bgImageView.alpha = 0.35f
-                        bgImageView.setImageBitmap(bmp)
-                        bgImageView.animate().alpha(1f).setDuration(900).start()
-                    }
-                }
-            } catch (_: Exception) {
-            }
-        }
+        private fun loadNextWallpaper() {
+        val wallIds = listOf(
+            R.drawable.wall1,
+            R.drawable.wall2,
+            R.drawable.wall3,
+            R.drawable.wall4,
+            R.drawable.wall5
+        )
+        val nextRes = wallIds[wallSeed % wallIds.size]
+        wallSeed++
+        bgImageView.alpha = 0.35f
+        bgImageView.setImageResource(nextRes)
+        bgImageView.animate().alpha(1f).setDuration(900).start()
     }
+
 
     private fun createStylishButton(iconEmoji: String, title: String, subtitle: String, action: () -> Unit): LinearLayout {
         return LinearLayout(this).apply {
