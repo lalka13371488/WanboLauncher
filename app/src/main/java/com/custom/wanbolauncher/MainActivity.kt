@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
 
@@ -36,20 +37,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bgImageView: ImageView
     private val handler = Handler(Looper.getMainLooper())
-    private var wallIndex = 0
-
-    private val photoIds = listOf(
-        "1506744038136-46273834b3fb",
-        "1469474968028-56623f02e42e",
-        "1470071459604-3b5ec3a7fe05",
-        "1501785888041-af3ef285b470",
-        "1441974231531-c6227db76b6e"
-    )
+    private var wallSeed = 100
 
     private val wallpaperRunnable = object : Runnable {
         override fun run() {
             loadNextWallpaper()
-            handler.postDelayed(this, 25000)
+            handler.postDelayed(this, 30000)
         }
     }
 
@@ -57,7 +50,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val frameRoot = FrameLayout(this).apply {
-            setBackgroundColor(0xFF0B0F17.toInt())
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                intArrayOf(0xFF0F172A.toInt(), 0xFF090D16.toInt(), 0xFF111827.toInt())
+            )
         }
 
         bgImageView = ImageView(this).apply {
@@ -71,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         val dimOverlay = View(this).apply {
             background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x77080B12.toInt(), 0xCC080B12.toInt())
+                intArrayOf(0x66080B12.toInt(), 0xBF080B12.toInt())
             )
             layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -81,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
         val contentRoot = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(64, 52, 64, 44)
+            setPadding(56, 48, 56, 40)
             layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -107,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             format24Hour = "HH:mm"
             format12Hour = "HH:mm"
             setTextColor(0xFFFFFFFF.toInt())
-            textSize = 88f
+            textSize = 84f
             typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
             setShadowLayer(12f, 0f, 4f, 0x80000000.toInt())
         }
@@ -116,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             format24Hour = "EEEE, d MMMM"
             format12Hour = "EEEE, d MMMM"
             setTextColor(0xFFE2E8F0.toInt())
-            textSize = 22f
+            textSize = 20f
             setPadding(6, 4, 0, 0)
             setShadowLayer(8f, 0f, 2f, 0x80000000.toInt())
         }
@@ -129,16 +125,16 @@ class MainActivity : AppCompatActivity() {
             rowCount = 2
         }
 
-        grid.addView(createStylishButton("📶", "Wi-Fi", "Сеть и интернет") {
+        grid.addView(createStylishButton("📶", "Wi-Fi", "Интернет и сеть") {
             openSystemScreen(Settings.ACTION_WIFI_SETTINGS)
         })
         grid.addView(createStylishButton("🎧", "Bluetooth", "Аудио и пульты") {
             openSystemScreen(Settings.ACTION_BLUETOOTH_SETTINGS)
         })
-        grid.addView(createStylishButton("📐", "Проекция", "Углы и трапеция") {
+        grid.addView(createStylishButton("📐", "Проекция", "4 угла и экран") {
             openKeystoneSettings()
         })
-        grid.addView(createStylishButton("⚙️", "Настройки", "Система проектора") {
+        grid.addView(createStylishButton("⚙️", "Настройки", "Система") {
             openSystemScreen(Settings.ACTION_SETTINGS)
         })
 
@@ -151,12 +147,12 @@ class MainActivity : AppCompatActivity() {
             setTextColor(0xFFCBD5E1.toInt())
             textSize = 14f
             typeface = Typeface.DEFAULT_BOLD
-            setPadding(8, 0, 0, 14)
+            setPadding(8, 0, 0, 12)
         }
 
         val recyclerView = RecyclerView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 215
+                ViewGroup.LayoutParams.MATCH_PARENT, 210
             )
             clipToPadding = false
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
@@ -184,14 +180,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadNextWallpaper() {
-        val id = photoIds[wallIndex % photoIds.size]
-        wallIndex++
-        val host = "://unsplash.com"
-        val fullUrl = "https://$host/photo-$id?w=1280&q=80"
+        wallSeed += 7
+        val host = "picsum.photos"
+        val fullUrl = "https://$host/seed/nature$wallSeed/1280/720"
         thread {
             try {
-                val stream = URL(fullUrl).openStream()
-                val bmp: Bitmap? = BitmapFactory.decodeStream(stream)
+                val conn = URL(fullUrl).openConnection() as HttpURLConnection
+                conn.instanceFollowRedirects = true
+                conn.connectTimeout = 8000
+                conn.readTimeout = 8000
+                val bmp: Bitmap? = BitmapFactory.decodeStream(conn.inputStream)
                 if (bmp != null) {
                     runOnUiThread {
                         bgImageView.alpha = 0.35f
@@ -211,17 +209,17 @@ class MainActivity : AppCompatActivity() {
             isFocusable = true
             isClickable = true
             background = createGlassCardDrawable()
-            setPadding(24, 18, 24, 18)
+            setPadding(22, 16, 22, 16)
             layoutParams = GridLayout.LayoutParams().apply {
-                width = 275
-                height = 110
-                setMargins(12, 12, 12, 12)
+                width = 345
+                height = 105
+                setMargins(10, 10, 10, 10)
             }
 
             val iconView = TextView(context).apply {
                 text = iconEmoji
-                textSize = 26f
-                setPadding(0, 0, 18, 0)
+                textSize = 24f
+                setPadding(0, 0, 16, 0)
             }
 
             val textContainer = LinearLayout(context).apply {
@@ -230,14 +228,16 @@ class MainActivity : AppCompatActivity() {
 
             val titleView = TextView(context).apply {
                 text = title
-                textSize = 18f
+                textSize = 16f
+                maxLines = 1
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(0xFFFFFFFF.toInt())
             }
 
             val subView = TextView(context).apply {
                 text = subtitle
-                textSize = 13f
+                textSize = 12f
+                maxLines = 1
                 setTextColor(0xFF94A3B8.toInt())
             }
 
@@ -248,8 +248,8 @@ class MainActivity : AppCompatActivity() {
             addView(textContainer)
 
             setOnFocusChangeListener { v, hasFocus ->
-                v.animate().scaleX(if (hasFocus) 1.05f else 1.0f)
-                    .scaleY(if (hasFocus) 1.05f else 1.0f)
+                v.animate().scaleX(if (hasFocus) 1.04f else 1.0f)
+                    .scaleY(if (hasFocus) 1.04f else 1.0f)
                     .setDuration(150).start()
             }
             setOnClickListener { action() }
